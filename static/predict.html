@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>predict image app</title>
+    <style>
+        * {
+            font-size:25px;
+        }
+    </style>
+</head>
+<body>    
+    <input id="image-selector" type="file">    
+    <button id="predict-button">predict</button>
+    <p style="font-weight:bold">predictions</p>    
+    <p>Covid19: <span id="Covid19-prediction"></span></p>
+    <p>lung_opacity: <span id="lung_opacity-prediction"></span></p>
+    <p>Normal: <span id="Normal-prediction"></span></p>
+    <p>Viral_penmounia: <span id="Viral_pnemounia-prediction"></span></p>
+    <img id="selected-image" src=""/>
+       
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+        let base64Image;
+        $("#image-selector").change(function() {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let dataURL = reader.result;
+                $('#selected-image').attr("src", dataURL);
+                base64Image = dataURL.replace("data:image/png;base64,","");
+                console.log(base64Image);
+            }
+            reader.readAsDataURL($("#image-selector")[0].files[0]);
+            $("#Covid19-prediction").text("");
+            $("#lung_opacity-prediction").text("");
+            $("#Normal-prediction").text("");
+            $("#Viral_pnemounia-prediction").text("");
+        });
+        
+        $("#predict-button").click(function(){
+            let message = {
+                image: base64Image
+            }
+            console.log(message);
+            $.post("http://0.0.0.0:5000/static/predict",JSON.stringify(message), function(response){
+$("#Covid19-prediction").text(response.prediction.covid19.toFixed(5));
+                 
+
+$("#lung_opacity-prediction").text(response.prediction.lung_opacity.toFixed(5));
+$("#Normal-prediction").text(response.prediction.Normal.toFixed(5));
+
+$("#Viral_pnemounia-prediction").text(response.prediction.Viral_pnemounia.toFixed(5));
+
+                console.log(response);
+            });
+        });       
+    </script>
+</body>
+</html>
